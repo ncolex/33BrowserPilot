@@ -6,6 +6,7 @@ from pathlib import Path
 from backend.smart_browser_controller import SmartBrowserController  # Updated import
 from backend.proxy_manager import SmartProxyManager  # Updated import
 from backend.agent import run_agent
+from backend.database import db  # Database integration
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -49,38 +50,49 @@ async def create_job(req: JobRequest):
     if req.format not in valid_formats:
         print(f"⚠️ Invalid format '{req.format}', defaulting to 'txt'")
         req.format = "txt"
-    
+
     job_id = str(uuid.uuid4())
-    
+
     # Use smart proxy manager to get the best available proxy
     proxy_info = smart_proxy_manager.get_best_proxy()
     proxy = proxy_info.to_playwright_dict() if proxy_info else None
-    
+    proxy_server = proxy.get("server", "None") if proxy else "None"
+
     print(f"🚀 Creating smart job {job_id}")
     print(f"📋 Goal: {req.prompt}")
     print(f"🌐 Format: {req.format}")
     print(f"🖥️ Headless: {req.headless}")
     print(f"📡 Streaming: {req.enable_streaming}")
-    print(f"🔄 Selected proxy: {proxy.get('server', 'None') if proxy else 'None'}")
-    
+    print(f"🔄 Selected proxy: {proxy_server}")
+
     # Get initial proxy stats
     proxy_stats = smart_proxy_manager.get_proxy_stats()
     print(f"📊 Proxy pool stats: {proxy_stats}")
-    
+
+    # Store job in database
+    await db.create_job(
+        job_id=job_id,
+        prompt=req.prompt,
+        format=req.format,
+        headless=req.headless,
+        streaming_enabled=req.enable_streaming,
+        proxy_server=proxy_server
+    )
+
     # Create the agent task
     coro = run_agent(job_id, req.prompt, req.format, req.headless, proxy, req.enable_streaming)
     tasks[job_id] = asyncio.create_task(coro)
-    
+
     response = {
-        "job_id": job_id, 
+        "job_id": job_id,
         "format": req.format,
         "proxy_stats": proxy_stats
     }
-    
+
     if req.enable_streaming:
         response["streaming_enabled"] = True
         response["stream_url"] = f"ws://localhost:8000/stream/{job_id}"
-    
+
     return response
 
 @app.websocket("/ws/{job_id}")
@@ -334,6 +346,66 @@ def reload_proxies():
             "message": f"Failed to reload proxies: {str(e)}"
         }
 
+@app.get("/jobs")
+async def get_all_jobs(limit: int = 50, offset: int = 0):
+    """Get all jobs from database with pagination"""
+    jobs = await db.get_all_jobs(limit, offset)
+    stats = await db.get_job_stats()
+    return {
+        "jobs": jobs,
+        "stats": stats,
+        "pagination": {
+            "limit": limit,
+            "offset": offset
+        }
+    }
+
+@app.get("/job/{job_id}")
+async def get_job(job_id: str):
+    """Get detailed job information from database"""
+    job = await db.get_job(job_id)
+    if job:
+        # Add file existence check
+        extension = job.get("file_extension", "output")
+        file_path = OUTPUT_DIR / f"{job_id}.{extension}"
+        job["file_exists"] = file_path.exists()
+        job["file_path"] = str(file_path) if file_path.exists() else None
+        return {"job": job}
+    else:
+        return {"error": "Job not found", "job_id": job_id}
+
+@app.delete("/job/{job_id}")
+async def delete_job(job_id: str):
+    """Delete a job from database and remove output file"""
+    # Delete from database
+    success = await db.delete_job(job_id)
+    
+    # Also delete output file if exists
+    job = await db.get_job(job_id)
+    if job:
+        extension = job.get("file_extension", "output")
+        file_path = OUTPUT_DIR / f"{job_id}.{extension}"
+        if file_path.exists():
+            file_path.unlink()
+    
+    if success:
+        return {"message": f"Job {job_id} deleted successfully"}
+    else:
+        return {"error": "Failed to delete job"}
+
+@app.get("/stats")
+async def get_system_stats():
+    """Get overall system statistics from database"""
+    db_stats = await db.get_job_stats()
+    proxy_stats = smart_proxy_manager.get_proxy_stats()
+    
+    return {
+        "database": db_stats,
+        "proxy": proxy_stats,
+        "active_jobs": len(tasks),
+        "active_streams": len(streaming_sessions)
+    }
+
 app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
 
 # Helper functions
@@ -364,7 +436,7 @@ async def register_streaming_session(job_id: str, browser_ctrl):
 async def cleanup():
     """Cleanup resources on shutdown"""
     print("🧹 Cleaning up resources...")
-    
+
     # Cleanup streaming sessions
     for job_id, browser_ctrl in streaming_sessions.items():
         try:
@@ -372,12 +444,22 @@ async def cleanup():
             print(f"✅ Cleaned up streaming session: {job_id}")
         except Exception as e:
             print(f"❌ Error cleaning up session {job_id}: {e}")
-    
+
     streaming_sessions.clear()
     job_info.clear()
-    
+
+    # Disconnect database
+    await db.disconnect()
+
     # Print final proxy stats
     final_stats = smart_proxy_manager.get_proxy_stats()
     print(f"📊 Final proxy stats: {final_stats}")
-    
+
     print("✅ Cleanup completed")
+
+@app.on_event("startup")
+async def startup():
+    """Initialize database connection on startup"""
+    print("🚀 Starting up BrowserPilot...")
+    await db.connect()
+    print("✅ Startup completed")
