@@ -1,0 +1,12 @@
+{
+  "name": "browserpilot-keepalive",
+  "version": "1.0.0",
+  "description": "Keep Hugging Face Space awake",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}
