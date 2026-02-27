@@ -51,9 +51,15 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/
 # Create outputs directory
 RUN mkdir -p outputs
 
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
+ENV GRADIO_SERVER_NAME=0.0.0.0
+ENV GRADIO_SERVER_PORT=8000
 
 # Expose the port the app runs on
 EXPOSE 8000
@@ -66,5 +72,5 @@ USER pwuser
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/ || exit 1
 
-# Run the application
-CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application using entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

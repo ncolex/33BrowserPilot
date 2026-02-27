@@ -1,54 +1,27 @@
-# Ignore files not needed in the Docker build context
-
-# Git
 .git
 .gitignore
-
-# Documentation
-README.md
-.github/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-.pytest_cache/
-.coverage
-htmlcov/
-venv/
+*.md
+!README.md
 .env
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.yarn/
-
-# Build outputs (will be copied from build stage)
-frontend/dist/
-frontend/node_modules/
-
-# Application outputs
-outputs/
-logs/
+.env.*
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+*.egg-info
+dist
+build
+node_modules
+frontend/node_modules
+frontend/dist
 *.log
-
-# IDE and editor files
-.vscode/
-.idea/
+.DS_Store
+Thumbs.db
+.vscode
+.idea
 *.swp
 *.swo
 *~
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Temporary files
-tmp/
-temp/
-*.tmp
+.cache
+outputs/*
+!outputs/.gitkeep
