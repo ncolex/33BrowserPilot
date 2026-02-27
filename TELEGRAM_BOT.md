@@ -9,18 +9,24 @@
 | Type | Key | Value |
 |------|-----|-------|
 | Secret | `TELEGRAM_BOT_TOKEN` | `8246977072:AAHItyl6wYcrkNwTcj5Teu0lsVwTeMKZZqU` |
-| Secret | `TELEGRAM_CHAT_ID` | (tu chat ID - ver abajo) |
+| Secret | `TELEGRAM_CHAT_ID` | `5858991844` |
 
 **En GitHub Secrets** (Settings → Secrets and variables → Actions):
 
 | Secret | Value |
 |--------|-------|
 | `TELEGRAM_BOT_TOKEN` | `8246977072:AAHItyl6wYcrkNwTcj5Teu0lsVwTeMKZZqU` |
-| `TELEGRAM_CHAT_ID` | (tu chat ID - ver abajo) |
+| `TELEGRAM_CHAT_ID` | `5858991844` |
+
+✅ **Configuración completa** - ¡El bot ya está funcionando!
 
 ---
 
-## Cómo obtener tu Chat ID
+## Cómo obtener tu Chat ID (ya configurado)
+
+El Chat ID ya está configurado: `5858991844`
+
+Si necesitás cambiarlo en el futuro, los pasos son:
 
 1. **Abrí Telegram**
 2. **Buscá**: `@Error33yobot`
@@ -30,7 +36,6 @@
    curl -s "https://api.telegram.org/bot8246977072:AAHItyl6wYcrkNwTcj5Teu0lsVwTeMKZZqU/getUpdates" | python3 -m json.tool
    ```
 5. **Buscá** en el resultado: `"chat": {"id": 123456789, ...}`
-6. **Ese número** es tu `TELEGRAM_CHAT_ID`
 
 ---
 
