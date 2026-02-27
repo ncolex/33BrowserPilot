@@ -1,7 +1,0 @@
-[build]
-  functions = "functions"
-
-[schedules]
-  [schedules.keepalive]
-    function = "keepalive"
-    cron = "*/13 * * * *"

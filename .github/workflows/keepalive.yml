@@ -1,0 +1,27 @@
+name: Keep HF Space Awake
+
+on:
+  schedule:
+    # Runs every 13 minutes
+    - cron: '*/13 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Hugging Face Space
+        run: |
+          echo "🔍 Pinging Hugging Face Space..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.HF_SPACE_URL }}")
+          echo "✅ Response status: $RESPONSE"
+          
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 400 ]; then
+            echo "✅ Space is awake!"
+            exit 0
+          else
+            echo "❌ Space returned status: $RESPONSE"
+            exit 1
+          fi
+        env:
+          HF_SPACE_URL: ${{ secrets.HF_SPACE_URL }}
