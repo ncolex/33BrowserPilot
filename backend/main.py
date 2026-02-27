@@ -7,6 +7,7 @@ from backend.smart_browser_controller import SmartBrowserController  # Updated i
 from backend.proxy_manager import SmartProxyManager  # Updated import
 from backend.agent import run_agent
 from backend.database import db  # Database integration
+from backend.telegram_bot import bot_notifier, start_bot  # Telegram integration
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -79,9 +80,26 @@ async def create_job(req: JobRequest):
         proxy_server=proxy_server
     )
 
+    # Send Telegram notification
+    asyncio.create_task(bot_notifier.notify_job_started(job_id, req.prompt, req.format))
+
     # Create the agent task
     coro = run_agent(job_id, req.prompt, req.format, req.headless, proxy, req.enable_streaming)
-    tasks[job_id] = asyncio.create_task(coro)
+    task = asyncio.create_task(coro)
+    
+    # Add callback to notify when done
+    def on_task_done(fut):
+        try:
+            result = fut.result()
+            # Job completed successfully
+            download_url = f"/download/{job_id}"
+            asyncio.create_task(bot_notifier.notify_job_completed(job_id, req.format, download_url))
+        except Exception as e:
+            # Job failed
+            asyncio.create_task(bot_notifier.notify_job_failed(job_id, str(e)))
+    
+    task.add_done_callback(on_task_done)
+    tasks[job_id] = task
 
     response = {
         "job_id": job_id,
@@ -459,7 +477,11 @@ async def cleanup():
 
 @app.on_event("startup")
 async def startup():
-    """Initialize database connection on startup"""
+    """Initialize database connection and Telegram bot on startup"""
     print("🚀 Starting up BrowserPilot...")
     await db.connect()
+    
+    # Start Telegram bot in background
+    asyncio.create_task(start_bot())
+    
     print("✅ Startup completed")
