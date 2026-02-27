@@ -34,7 +34,7 @@
 | Type | Key | Value |
 |------|-----|-------|
 | Secret | `GOOGLE_API_KEY` | `AIzaSyBDl98MXre7ecN9jW16EVltBlaf38awkdo` |
-| Secret | `DATABASE_URL` | (opcional - tu connection string de Neon) |
+| Secret | `DATABASE_URL` | `postgresql://neondb_owner:npg_obFVM76KLule@ep-twilight-field-aiwca4xu.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require` |
 | Variable | `PYTHONUNBUFFERED` | `1` |
 
 **Para agregar cada una:**
