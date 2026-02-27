@@ -1,15 +1,13 @@
-export const config = {
-  runtime: 'edge',
-};
+const fetch = require('node-fetch');
 
-export default async function handler(request: Request) {
+exports.handler = async (event, context) => {
   const HF_SPACE_URL = process.env.HF_SPACE_URL;
 
   if (!HF_SPACE_URL) {
-    return new Response(
-      JSON.stringify({ error: 'HF_SPACE_URL not configured' }),
-      { status: 500, headers: { 'content-type': 'application/json' } }
-    );
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'HF_SPACE_URL not configured' }),
+    };
   }
 
   try {
@@ -27,32 +25,26 @@ export default async function handler(request: Request) {
 
     console.log(`✅ Ping result: ${status} ${ok ? 'OK' : 'ERROR'}`);
 
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: ok ? 200 : 500,
+      body: JSON.stringify({
         success: ok,
         status: status,
         url: HF_SPACE_URL,
         timestamp: new Date().toISOString(),
       }),
-      {
-        status: ok ? 200 : 500,
-        headers: { 'content-type': 'application/json' },
-      }
-    );
-  } catch (error: any) {
+    };
+  } catch (error) {
     console.error('❌ Ping failed:', error.message);
     
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
         success: false,
         error: error.message,
         url: HF_SPACE_URL,
         timestamp: new Date().toISOString(),
       }),
-      {
-        status: 500,
-        headers: { 'content-type': 'application/json' },
-      }
-    );
+    };
   }
-}
+};

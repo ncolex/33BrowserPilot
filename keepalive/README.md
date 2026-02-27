@@ -1,101 +1,60 @@
-# KeepAlive para Hugging Face Spaces
+# KeepAlive para Hugging Face Spaces - Netlify Functions
 
-## ¿Qué es esto?
+## Deploy en Netlify (100% GRATIS)
 
-Este es un cron job gratuito que hace ping a tu Hugging Face Space cada **13 minutos** para evitar que se duerma.
-
-## Deploy en Vercel (100% GRATIS)
-
-### Opción 1: Desde la CLI de Vercel
+### Opción 1: Usando Netlify CLI (Recomendado)
 
 ```bash
-# 1. Instalar Vercel CLI
-npm install -g vercel
+# 1. Instalar dependencias
+cd /home/ncx/BROPILOT/33BrowserPilot/keepalive
+npm install
 
 # 2. Login
-vercel login
+npx netlify login
 
-# 3. Deploy
-cd /home/ncx/BROPILOT/33BrowserPilot/keepalive
-vercel --prod
+# 3. Init
+npx netlify init
+
+# 4. Deploy
+npx netlify deploy --prod
 ```
 
 ### Opción 2: Desde GitHub
 
-1. **Subí este folder a un repo separado** (o al mismo en una carpeta)
-2. **Andá a Vercel**: https://vercel.com/new
-3. **Importá el repo**
-4. **Configurá la variable de entorno**:
-   - `HF_SPACE_URL` = `https://huggingface.co/spaces/ncolex/browserpilot`
+1. **Subí el código a GitHub** (ya está en el repo)
+2. **Andá a Netlify**: https://app.netlify.com/new
+3. **Importá el repo**: `ncolex/33BrowserPilot`
+4. **Base directory**: `keepalive`
 5. **Deploy**
 
-### Configurar el Cron
+### Configurar Variables de Entorno
 
-Una vez desplegado:
+En Netlify Dashboard:
+1. **Site settings** → **Environment variables**
+2. **Add variable**:
+   - **Key**: `HF_SPACE_URL`
+   - **Value**: `https://huggingface.co/spaces/ncolex/browserpilot`
+3. **Save**
 
-1. Andá a tu proyecto en Vercel
-2. **Settings** → **Cron Jobs**
-3. **Create Cron Job**
-4. **Schedule**: `*/13 * * * *` (cada 13 minutos)
-5. **URL**: `/api/keepalive`
+### Verificar el Schedule
 
-O simplemente usá el `vercel.json` que ya incluye la configuración del cron.
-
-## Variables de Entorno
-
-En Vercel, configurá:
-
-| Variable | Valor |
-|----------|-------|
-| `HF_SPACE_URL` | `https://huggingface.co/spaces/ncolex/browserpilot` |
+1. **Functions** → **keepalive**
+2. **Schedules** tab
+3. Debería mostrar: `*/13 * * * *`
 
 ## Costo: **$0/mes**
 
-- **Vercel Hobby Plan**: Gratis
-- **Cron jobs**: 100 gratis/mes (vos usás ~67/mes)
-- **Funciones serverless**: 100GB-hrs/mes
+- **Netlify Starter**: Gratis
+- **Functions**: 125k invocaciones/mes (vos usás ~3300/mes)
+- **Schedules**: Ilimitados
 
-## Verificación
+## URLs
 
-Una vez configurado:
+- **Function**: `https://browserpilot-keepalive.netlify.app/.netlify/functions/keepalive`
+- **Dashboard**: https://app.netlify.com/dashboard
 
-1. **Logs**: https://vercel.com/dashboard/activity
-2. **Cron executions**: Settings → Cron Jobs
-3. **Test manual**: `https://tu-proyecto.vercel.app/api/keepalive`
-
-## Alternativa: Netlify Functions
-
-Si preferís Netlify:
+## Test manual
 
 ```bash
-# Instalar Netlify CLI
-npm install -g netlify-cli
-
-# Login
-netlify login
-
-# Init
-netlify init
-
-# Deploy
-netlify deploy --prod
+curl https://browserpilot-keepalive.netlify.app/.netlify/functions/keepalive
 ```
-
-Configurar `netlify.toml`:
-
-```toml
-[functions]
-  directory = "api"
-
-[schedules]
-  [schedules.keepalive]
-    function = "keepalive"
-    cron = "*/13 * * * *"
-```
-
-## Notas
-
-- El cron job hace un **GET simple** al Space
-- No consume recursos significativos
-- Mantiene el Space "despierto" indefinidamente
-- Funciona con cualquier Hugging Face Space Docker
