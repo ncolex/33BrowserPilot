@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: browserpilot
+    env: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: SCRAPER_PROXIES
+        sync: false
+        default: []
+      - key: PYTHONUNBUFFERED
+        sync: false
+        default: 1
+    disk:
+      name: outputs
+      mountPath: /app/outputs
+      sizeGB: 5
