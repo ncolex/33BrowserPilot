@@ -70,10 +70,14 @@ EXPOSE 8000
 
 # Create a non-root user for security (the playwright image already has pwuser)
 RUN chown -R pwuser:pwuser /app
+
+# Install curl for health check before switching to non-root user
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 USER pwuser
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+# Health check - give app more time to start (120 seconds)
+HEALTHCHECK --interval=10s --timeout=10s --start-period=120s --retries=5 \
     CMD curl -f http://localhost:8000/ || exit 1
 
 # Run the application using entrypoint

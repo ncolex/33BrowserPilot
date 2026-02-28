@@ -10,8 +10,16 @@ services:
     envVars:
       - key: GOOGLE_API_KEY
         sync: false
+        default: AIzaSyBDl98MXre7ecN9jW16EVltBlaf38awkdo
       - key: DATABASE_URL
         sync: false
+        default: postgresql://neondb_owner:npg_obFVM76KLule@ep-twilight-field-aiwca4xu.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+        default: 8246977072:AAHItyl6wYcrkNwTcj5Teu0lsVwTeMKZZqU
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+        default: 5858991844
       - key: SCRAPER_PROXIES
         sync: false
         default: []
