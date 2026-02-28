@@ -1,3 +1,12 @@
+---
+title: BrowserPilot
+emoji: 🤖
+colorFrom: blue
+colorTo: purple
+sdk: docker
+python_version: 3.10
+---
+
 # BrowserPilot
 
 > Ever wished you could tell your browser "Hey, go grab all the product prices from that e-commerce site" and it would just... do it? That's exactly what this does, but smarter.
