@@ -35,12 +35,16 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
     bs4==0.0.2 \
     lxml==5.2.1 \
     markdownify==0.11.6 \
-    "numpy>=1.24.0,<2.3.0" \
+    "numpy>=2.0.0,<2.3.0" \
     "pandas>=2.0.0,<2.3.0" \
     python-dateutil==2.9.0.post0 \
     pytz==2025.2 \
     tzdata==2025.2 \
-    reportlab==4.4.2
+    reportlab==4.4.2 \
+    psycopg2-binary==2.9.9 \
+    asyncpg==0.29.0 \
+    python-telegram-bot==21.0 \
+    aiohttp==3.9.5
 
 # Copy backend source code
 COPY backend/ ./backend/
