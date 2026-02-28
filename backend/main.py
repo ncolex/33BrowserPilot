@@ -340,10 +340,11 @@ def get_job_info(job_id: str):
 @app.get("/proxy/stats")
 def get_proxy_stats():
     """Get current proxy pool statistics"""
+    import time
     stats = smart_proxy_manager.get_proxy_stats()
     return {
         "proxy_stats": stats,
-        "timestamp": asyncio.get_event_loop().time()
+        "timestamp": time.time()
     }
 
 @app.post("/proxy/reload")
