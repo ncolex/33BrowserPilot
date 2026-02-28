@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Download, Monitor, Eye, EyeOff, Sparkles, ArrowRight } from 'lucide-react';
 import { WebSocketManager } from '../services/WebSocketManager';
-const API_BASE_URL = 'http://localhost:8000';
+
+// Auto-detect API base URL based on environment
+const getApiBaseUrl = () => {
+  // In production, use the same host as the frontend
+  // In development (port 5173), use localhost:8000
+  const isDev = window.location.port === '5173';
+  if (isDev) {
+    return 'http://localhost:8000';
+  }
+  // Use relative URLs in production (works with Render, HF Spaces, etc.)
+  return '';
+};
+const API_BASE_URL = getApiBaseUrl();
 
 interface JobFormProps {
   wsManager: WebSocketManager;
