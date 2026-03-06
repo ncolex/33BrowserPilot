@@ -211,6 +211,8 @@ Just talk to it naturally:
 GOOGLE_API_KEY=your_gemini_api_key_here
 
 # Optional
+# Override Gemini model name if needed (defaults to gemini-1.5-flash)
+GEMINI_MODEL=gemini-1.5-flash
 SCRAPER_PROXIES=your_proxy_configuration
 ```
 

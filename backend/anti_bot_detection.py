@@ -1,6 +1,4 @@
-import os
 import base64
-import google.generativeai as genai
 import json
 import asyncio
 import functools
@@ -9,8 +7,9 @@ import io
 
 class AntiBotVisionModel:
     def __init__(self):
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        self.model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")
+        from backend.model_provider import get_gemini_model
+
+        self.model = get_gemini_model()
     
     async def analyze_anti_bot_page(self, screenshot_b64: str, detection_prompt: str, page_url: str) -> dict:
         """Analyze page screenshot to detect anti-bot systems"""
